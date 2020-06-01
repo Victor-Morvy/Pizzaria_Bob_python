@@ -38,7 +38,7 @@ def getCod_ClienteByTelefone(telefone):
     retorno = connection.cursor.fetchone()
     return retorno[0]
 
-#print(getClienteCodByTelefone(1138765865))
+#print(getCod_ClienteByTelefone(1138765865))
 
 ##CADASTRAR CLIENTE
 #parâmetros: nome_cli, tel_fixo, tel_cel, endereco, nr_end, complemento, bairro, uf, cep
@@ -47,7 +47,7 @@ def cadastrarCliente(nome_cli, tel_fixo, tel_cel, endereco, nr_end, complemento,
                               values('{nome_cli}', '{tel_fixo}', '{tel_cel}', '{endereco}', '{nr_end}', '{complemento}', '{bairro}', '{cidade}', '{uf}', '{cep}')")
     connection.connection.commit()
 
-#cadastrarCliente("Moises Araújo", "1939874851", "19984237482", "Rua das Andorinhas", "24", "Conjunto 23, ap 12", "Jd. Macieiras", "Vinhedo", "SP", "13280000")
+#cadastrarCliente("Douglas Martins", "1937698547", "19987642597", "Rua Olávo de Carvalho", "666", "", "Jd Pirambeira", "Jundiaí", "SP", "13280000")
 
 ##DADOS CLIENTE
 #esta função retornará os dados de cadastro do cliente
@@ -60,7 +60,7 @@ def dadosCliente(cod_cliente):
 #print(dadosCliente(1)[0]) #Retorna o cod_cliente
 #print(dadosCliente(1)[1]) #Retorna o telefone fixo
 #print(dadosCliente(1)[2]) #Retorna o telefone celular
-#print(dadosCliente(1)[3]) #Retorna o nome
+#print(dadosCliente(2)[3]) #Retorna o nome
 #print(dadosCliente(1)[4]) #Retorna endereço
 #print(dadosCliente(1)[5]) #Retorna o número do endereço
 #print(dadosCliente(1)[6]) #Retorna o complemento
@@ -77,11 +77,17 @@ def atualizarCadastro(cod_cliente, tel_cels, nome_cli, endereco, nr_end, complem
                               WHERE cod_cliente = '{cod_cliente}'")
     connection.connection.commit()
 
+##Exemplos
+#atualizarCadastro(3, "19987642597", "Douglas Martins", "Rua Marionete Sábado", "54", "", "Jd Primavera Verão", "Jundiaí", "SP", "13280000")
+
 ##EXCLUIR CLIENTE
 #parâmetro: cod_cliente
 def excluirCliente(id):
-    connection.cursor.execute(f"DELETE from cliente where id = '{id}'")
+    connection.cursor.execute(f"DELETE from cliente where cod_cliente = '{id}'")
     connection.connection.commit()
+
+##Exemplo
+#excluirCliente(3)
 
 ##NOME DA PIZZA
 #retorna o nome da pizza
@@ -90,6 +96,9 @@ def nomePizza(id):
     connection.cursor.execute(f"SELECT nome_pizza FROM pizza WHERE cod_pizza = '{id}'")
     retorno = connection.cursor.fetchone()
     return retorno[0]
+
+#Exemplo
+#print(nomePizza(4))
 
 ##INDICA SABORES
 #retorna list com últimos 3 pedidos
@@ -108,7 +117,7 @@ def indicarPedido(cod_cliente):
 
 #EXEMPLO
 #print(indicarPedido(1))
-#print(indicarPedido(1)[0])
+#print(indicarPedido(1)[1])
 #print(indicarPedido(1)[2][1])
 #print(indicarPedido(1)[2][0])
 
@@ -120,10 +129,13 @@ def tipoPizza(id):
     retorno = connection.cursor.fetchone()
     return retorno[0]
 
+##EXEMPLO
+#print(tipoPizza(13))
+
 ##PIZZAS SALGADAS
 #Retorna list com o codigo da pizza e o nome das pizzas salgadas
 def pizzasSalgadas():
-    connection.cursor.execute(f"SELECT cod_pizza, nome_pizza FROM pizza WHERE tipo_pizza = 'Salgada'")
+    connection.cursor.execute(f"SELECT cod_pizza, nome_pizza FROM pizza WHERE tipo_pizza = 'Salgada' AND data_inativacao IS NULL")
     retorno = connection.cursor.fetchall()
     return retorno
 
@@ -136,7 +148,7 @@ def pizzasSalgadas():
 ##PIZZAS DOCES
 #Retorna list com o nome das pizzas doces
 def pizzasDoces():
-    connection.cursor.execute(f"SELECT cod_pizza, nome_pizza FROM pizza WHERE tipo_pizza = 'Doce'")
+    connection.cursor.execute(f"SELECT cod_pizza, nome_pizza FROM pizza WHERE tipo_pizza = 'Doce' AND data_inativacao IS NULL")
     retorno = connection.cursor.fetchall()
     return retorno
 
@@ -156,7 +168,7 @@ def criaPedido(cod_cli):
     VALUES ('{dataAgora}', '{horaAgora}', {cod_cli}, 0)")
     connection.connection.commit()
 
-#criaPedido(1)
+#criaPedido(2)
 
 ##ÚLTIMO PEDIDO ADICIONADO AO BANCO
 #retorna o codigo do último resultado banco de dados, na tabela pedido (pedido onde serão armazenados os itens do pedido)
@@ -174,7 +186,7 @@ def valorPizza(id_pizza):
     retorno = connection.cursor.fetchone()
     return retorno[0]
 
-#print(valorPizza(2))
+#print(valorPizza(6))
 
 ##VALOR PIZZA MAIS CARA
 #retorna o valor da pizza mais cara, se for selecionado pizza 2 sabores
@@ -190,8 +202,9 @@ def valorPizzaMaisCara(pizza_um, pizza_dois):
 ##ADICIONAR PIZZA NO PEDIDO
 #retorna 0 se deu errado, retorna 1 se deu certo
 #adiciona pizza no pedido criado
-#Parâmetro tamanho: p, m, g, gg
+#Parâmetro tamanho: m, g, gg
 def addPizza(cod_pedido, tamanho, quantidade, sabor_um, sabor_dois = None):
+
     precoFinal = 0
     if sabor_dois is not None:
         if tipoPizza(sabor_um) == "Doce" or tipoPizza(sabor_dois) == "Doce":
@@ -220,13 +233,19 @@ def addPizza(cod_pedido, tamanho, quantidade, sabor_um, sabor_dois = None):
     connection.connection.commit()
     return 1
 
-#EXEMPLOS
+##EXEMPLOS
 #addPizza(ultimoPedido(), "m", 2, 2, 12) #pizza dois sabores salgados
 #addPizza(ultimoPedido(), "m", 1, 14, 12) #pizza meia doce, meia salgada (retorna erro)
 #addPizza(ultimoPedido(), "g", 2, 8) #pizza apenas um sabor salgado
 #addPizza(ultimoPedido(), "m", 2, 6, 15) #pizza meia salgada, meia doce (retorna erro)
 #addPizza(ultimoPedido(), "gg", 1, 13) #pizza um sabor doce
 #addPizza(ultimoPedido(), "2", 1, 13) #parâmetro de tamanho errado (retorna erro)
+'''
+if addPizza(ultimoPedido(), "m", 2, 12, 11) == 1:
+    print("Foi adicionado a pizza")
+else:
+    print("Erro ao adicionar a pizza")
+'''
 
 ##VALOR TOTAL DO PEDIDO
 #Retorna o valor total de um pedido pela id do pedido
@@ -235,7 +254,7 @@ def valorTotalPedido(cod_pedido):
     retorno = connection.cursor.fetchone()
     return retorno[0]
 
-#print(valorTotalPedido(6))
+#print(valorTotalPedido(7))
 
 ##RETORNA ITENS PEDIDO
 #Retorna em uma tupla os dados do pedido
@@ -269,12 +288,17 @@ def excluirPedido(cod_pedido):
     connection.cursor.execute(f"DELETE FROM pedido WHERE cod_ped = '{cod_pedido}'")
     connection.connection.commit()
 
+##Exemplo
+#excluirPedido(7)
+
 ##FINALIZA PEDIDO
 #esta função irá setar o valor final do pedido no codigo do pedido, apenas para futuras consultas
 #pode ser utilizado para futura implementação, quando o valor maior que 0, está definido como pedido fechado.
 def finalizaPedido(cod_pedido):
-    connection.cursor.execute(f"UPDATE pedido SET total_pedido = '{valorTotalPedido(cod_pedido)}' WHERE '{cod_pedido}'")
+    connection.cursor.execute(f"UPDATE pedido SET total_ped = '{valorTotalPedido(cod_pedido)}' WHERE cod_ped = '{cod_pedido}'")
     connection.connection.commit()
+
+#finalizaPedido(6)
 
 ##TROCO
 #esta função calcula automáticamente o troco, retornará -1 se houver algum erro
@@ -290,6 +314,43 @@ def troco(cod_pedido, valor):
 #print(f"O troco será R$ {troco(6, 350):.2f}")
 #print(f"O troco será R$ {troco(6, 200):.2f}")
 
+##INATIVAR PIZZA
+#esta função inativará a pizza (não é possível excluí-la)
+def inativaPizza(id):
+    dataAgora = now.strftime("%Y-%m-%d")
+
+    connection.cursor.execute(f"UPDATE pizza SET data_inativacao = '{dataAgora}' WHERE cod_pizza = '{id}'")
+    connection.connection.commit()
+
+#inativaPizza(5)
+
+##ATIVAR PIZZA
+#esta função ativará uma pizza inativa
+def ativaPizza(id):
+    connection.cursor.execute(f"UPDATE pizza SET data_inativacao = NULL WHERE cod_pizza = '{id}'")
+    connection.connection.commit()
+
+#ativaPizza(5)
+
+##CADASTRAR PIZZA
+#cadastra uma pizza no sistema
+#tipo de pizza 'Salgada' ou 'Doce'
+def cadastrarPizza(tipo_pizza, nome_pizza, ingredientes, valor_custo):
+    dataAgora = now.strftime("%Y-%m-%d")
+
+    if tipo_pizza != 'Salgada' or tipo_pizza != 'Doce':
+        print("!!!ERRO!!! é aceito apenas 'Salgada' ou 'Doce' como tipo de pizza")
+        return 0
+    elif nome_pizza is None or ingredientes is None or valor_custo is None:
+        print("!!!ERRO!!! O tipo da pizza, o nome da pizza, os ingredientes da pizza e o valor da pizza não podem ser nulos")
+        return 0
+
+    connection.cursor.execute(f"INSERT INTO pizza(tipo_pizza, nome_pizza, ingredientes, valor_custo, data_criacao) \
+                              VALUES ('{tipo_pizza}', '{nome_pizza}', '{ingredientes}', '{valor_custo}', '{dataAgora}')")
+    connection.connection.commit()
+    return 1
+
+
 
 ##Finaliza a conexão com o banco de dados
-connection.connection.close()
+#connection.connection.close()

@@ -10,11 +10,14 @@ Referencias:
 '''
 
 
+from datetime import datetime
 import os
-#import connection #Ainda não funcional
-import pedido
+import functDb
 
-global pedidos = []
+#global pedidos = []
+
+_pedido = functDb.ultimoPedido()
+print(_pedido)
 
 #Menu principal
 def menuPrincipal():
