@@ -350,7 +350,27 @@ def cadastrarPizza(tipo_pizza, nome_pizza, ingredientes, valor_custo):
     connection.connection.commit()
     return 1
 
+##CLIENTES CADASTRADOS
+#esta função retornará os dados de cadastro de todos os clientes
+def clientesCadastrados():
+    connection.cursor.execute(f"SELECT * FROM cliente ORDER BY cod_cliente DESC")
+    return connection.cursor.fetchall()
 
+#print(clientesCadastrados())
+
+##RELATORIO DE PIZZAS
+#esta função retorna todas as pizzas cadastradas e suas vendas
+def relatorioPizzas():
+    connection.cursor.execute(f"SELECT pi.nome_pizza as pizza_a, po.nome_pizza as pizza_b, pi.ingredientes as ingredientes_a, po.ingredientes as ingredientes_b, SUM(pe.quantidade), SUM(pe.valor_total)\
+    FROM itens_pedido pe\
+    INNER JOIN pizza pi on (pe.cod_pizza_um = pi.cod_pizza)\
+    LEFT JOIN pizza po on (pe.cod_pizza_dois = po.cod_pizza)\
+    GROUP BY\
+    pe.cod_pizza_um,\
+    pe.cod_pizza_dois;")
+    return connection.cursor.fetchall()
+
+#print(relatorioPizzas())
 
 ##Finaliza a conexão com o banco de dados
 #connection.connection.close()
